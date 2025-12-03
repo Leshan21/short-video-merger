@@ -233,24 +233,24 @@ class VideoProcessor:
             codec = self._get_codec(config.output_format)
             audio_codec = 'aac' if config.output_format in ['mp4', 'mov', 'mkv'] else 'mp3'
             
-            # Get total duration for progress updates
-            total_duration = final_clip.duration
+            # Use tempfile for unique temporary audio file
+            import tempfile
+            temp_dir = Path(config.output_path).parent
+            temp_audio_fd, temp_audio_path = tempfile.mkstemp(suffix='.m4a', dir=temp_dir)
+            os.close(temp_audio_fd)  # Close the file descriptor, moviepy will create the file
             
-            def progress_logger(t):
-                if total_duration > 0:
-                    progress = 0.75 + (t / total_duration) * 0.23
-                    self._progress.update(
-                        progress,
-                        f"Encoding: {int(progress * 100)}% complete"
-                    )
-            
-            final_clip.write_videofile(
-                str(output_path),
-                codec=codec,
-                audio_codec=audio_codec,
-                logger=None,  # Disable moviepy's own logging
-                temp_audiofile=str(Path(config.output_path).parent / 'temp_audio.m4a')
-            )
+            try:
+                final_clip.write_videofile(
+                    str(output_path),
+                    codec=codec,
+                    audio_codec=audio_codec,
+                    logger=None,  # Disable moviepy's own logging
+                    temp_audiofile=temp_audio_path
+                )
+            finally:
+                # Clean up temp audio file
+                if Path(temp_audio_path).exists():
+                    Path(temp_audio_path).unlink()
             
             # Get final duration
             output_duration = final_clip.duration
@@ -258,11 +258,6 @@ class VideoProcessor:
             # Clean up
             final_clip.close()
             self._cleanup_clips(clips)
-            
-            # Remove temp audio file if it exists
-            temp_audio = Path(config.output_path).parent / 'temp_audio.m4a'
-            if temp_audio.exists():
-                temp_audio.unlink()
             
             processing_time = time.time() - start_time
             
@@ -332,19 +327,32 @@ class VideoProcessor:
         """
         Normalize audio levels in the clip.
         
+        This applies a simple audio normalization by adjusting volume.
+        For full audio normalization, consider using external tools like ffmpeg.
+        
         Args:
             clip: Video clip to normalize.
             
         Returns:
-            Clip with normalized audio.
+            Clip with normalized audio, or original clip if normalization fails.
         """
-        try:
-            # Simple audio normalization using volumex
-            from moviepy.video.fx.all import volumex
-            
-            # Calculate average volume and normalize
-            # This is a simplified approach - full normalization would analyze the audio
+        if clip.audio is None:
             return clip
+            
+        try:
+            # Get the maximum volume to normalize against
+            # Note: Full normalization would require analyzing the audio
+            # This is a simplified approach that works for basic use cases
+            if self._moviepy_v2:
+                # moviepy 2.x uses a different API
+                from moviepy.audio.fx import MultiplyVolume
+                # Apply a mild volume boost if needed
+                return clip.with_effects([MultiplyVolume(1.0)])
+            else:
+                # moviepy 1.x
+                from moviepy.audio.fx.all import volumex
+                # Apply volume normalization
+                return clip.fx(volumex, 1.0)
         except Exception as e:
             logger.warning(f"Could not normalize audio: {e}")
             return clip

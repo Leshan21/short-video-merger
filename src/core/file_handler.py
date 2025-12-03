@@ -223,10 +223,9 @@ class FileHandler:
         if count <= 0 or count >= len(source):
             return source.copy()
         
-        if seed is not None:
-            random.seed(seed)
-        
-        return random.sample(source, count)
+        # Use a local random instance to avoid affecting global random state
+        rng = random.Random(seed)
+        return rng.sample(source, count)
     
     def enable_video(self, filename: str, enabled: bool = True) -> bool:
         """

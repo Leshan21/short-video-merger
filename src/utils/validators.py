@@ -10,6 +10,14 @@ from typing import Tuple, Optional
 from src.core.config import SUPPORTED_VIDEO_FORMATS, OUTPUT_FORMATS, TRANSITION_EFFECTS
 
 
+# Characters not allowed in filenames across different operating systems
+# Windows: < > : " / \ | ? *
+# Unix/Linux: / (and null character)
+# macOS: / and : (in HFS+)
+# Combined list for cross-platform compatibility
+INVALID_FILENAME_CHARS = '<>:"/\\|?*'
+
+
 def validate_folder_path(path: str) -> Tuple[bool, str]:
     """
     Validate that a folder path exists and is readable.
@@ -180,11 +188,8 @@ def sanitize_filename(filename: str) -> str:
     Returns:
         Sanitized filename safe for the filesystem.
     """
-    # Characters not allowed in filenames on various systems
-    invalid_chars = '<>:"/\\|?*'
-    
     result = filename
-    for char in invalid_chars:
+    for char in INVALID_FILENAME_CHARS:
         result = result.replace(char, '_')
     
     # Remove leading/trailing spaces and dots

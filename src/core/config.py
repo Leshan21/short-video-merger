@@ -12,16 +12,28 @@ from typing import Optional, List
 import os
 
 
-# Supported video formats
-SUPPORTED_VIDEO_FORMATS = {'.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.wmv', '.m4v'}
+# Supported video formats for input files
+# These formats are commonly supported by moviepy/ffmpeg.
+# Note: Actual playback depends on having appropriate codecs installed.
+# Formats with asterisk (*) may require additional codec support.
+SUPPORTED_VIDEO_FORMATS = {
+    '.mp4',   # MPEG-4 Part 14 - widely supported
+    '.avi',   # Audio Video Interleave - legacy but common
+    '.mov',   # QuickTime File Format
+    '.mkv',   # Matroska Video - container format
+    '.webm',  # WebM - open web video format
+    '.flv',   # Flash Video - legacy format *
+    '.wmv',   # Windows Media Video *
+    '.m4v',   # iTunes Video File Format
+}
 
-# Supported output formats
+# Supported output formats for merged videos
 OUTPUT_FORMATS = ['mp4', 'avi', 'mov', 'mkv']
 
-# Transition effects
+# Transition effects available for video merging
 TRANSITION_EFFECTS = ['none', 'fade', 'dissolve', 'crossfade']
 
-# Resolution handling options
+# Resolution handling options when merging videos with different resolutions
 RESOLUTION_OPTIONS = ['keep', 'resize', 'crop', 'pad']
 
 

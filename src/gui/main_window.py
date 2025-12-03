@@ -276,7 +276,7 @@ class MainWindow:
         # Randomize button
         self._randomize_btn = ttk.Button(
             parent,
-            text="🎲 Randomize Selection",
+            text="Randomize Selection",
             command=self._randomize_selection
         )
         self._randomize_btn.pack(fill=tk.X, pady=(PADDING['medium'], 0))
@@ -321,7 +321,7 @@ class MainWindow:
         
         self._merge_btn = ttk.Button(
             button_frame,
-            text="▶ Start Merge",
+            text="Start Merge",
             style='Accent.TButton',
             command=self._start_merge
         )

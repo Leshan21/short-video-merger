@@ -136,10 +136,11 @@ class TestVideoProcessor:
         
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = os.path.join(tmpdir, "output.mp4")
-            # Request impossibly large amount
+            # Request impossibly large amount (1 petabyte in MB)
+            ONE_PETABYTE_MB = 1_000_000_000
             has_space, message = processor.check_disk_space(
                 output_path, 
-                1000000000  # 1 petabyte
+                ONE_PETABYTE_MB
             )
             
             assert has_space is False

@@ -1,0 +1,14 @@
+# Short Video Merger - Python Dependencies
+
+# Video Processing
+moviepy>=1.0.3
+
+# Image handling (required by moviepy)
+Pillow>=9.0.0
+
+# CLI progress bars
+tqdm>=4.65.0
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
